@@ -18,27 +18,27 @@ uint16_t ADC_read(uint8_t channel) // channel에 해당하는 ADC값 반환
 	return ADCW;  // Return converted value
 }
 
-int temp_sensor_read() // 온도가 일정 수준을 넘으면 1을 반환
+float temp_sensor_read() // 온도값 반환
 {
 	ADC_set();
 	int value = ADC_read(0);
 	
-	float temp = (float)value * 5.0 / 1024 * 100; // ~`C 단위의 온도
+	float temp = (float)value * 5.0 / 1023.0 * 100; // ~`C 단위의 온도
 	
-	if(temp > 36) return 1; // 36도 이상일때 1 반환
-	else return 0;
+	return temp;
 }
 
-int gas_sensor_read() // 가스이 일정 수준을 넘으면 1을 반환
+float gas_sensor_read() // 가스값 반환
 {
 	ADC_set();
 	int value = ADC_read(2);
 	
-	if(value > 500) return 1;
-	else return 0;
+	float gas = (float)value *5.0 / 1023.0;
+	
+	return gas; // 0.0 ~ 5.0까지의 값
 }
 
-int fire_sensor_read() // 불꽃이 감지되면 1을 반환
+int fire_sensor_read() // 불꽃 상태 반환
 {
 	char key = PINF & 0x02;
 	if(key == 0x02) return 1;

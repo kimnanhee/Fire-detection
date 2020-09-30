@@ -7,10 +7,12 @@
 
 #include "sensor.h"
 #include "uart.h"
+#include "lcd.h"
 
 int main(void)
 {
 	DDRA = 0xFF; // 4bit LCD사용
+	PORTA = 0x00;
 	DDRF = 0x00; // 가스, 불꽃, 온도센서 입력핀
     DDRC = 0xFF; // 부저, 팬모터, 릴레이 출력핀
 	PORTC = 0x04; // 평상시 포트 출력
@@ -18,6 +20,8 @@ int main(void)
 	
 	uart_init(BAUDRATE(9600)); // baudrate 설정
 	sei();
+	
+	LCD_init();
 	
 	float temp = 0, gas = 0;
 	int temp_state = 0, gas_state = 0, fire_state = 0;

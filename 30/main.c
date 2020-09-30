@@ -25,6 +25,7 @@ int main(void)
 	
 	float temp = 0, gas = 0;
 	int temp_state = 0, gas_state = 0, fire_state = 0;
+	char buff[50];
 	
     while (1) 
     {
@@ -40,6 +41,13 @@ int main(void)
 		
 		int fire_state = fire_sensor_read();
 		_delay_ms(100);
+		
+		sprintf(buff, "temp : %3.1f, gas : %.1f, fire : %d", temp, gas, fire_state);
+		uart_string(buff);
+		
+		sprintf(buff, "%.1fC  %.1f%%  %d", temp, gas*20, fire_state);
+		LCD_setcursor(0, 0);
+		LCD_wString(buff);
 		
 		if(temp_state==0 && gas_state==0 && fire_state==0) state = 0; // 평상
 		else if(temp_state==1 && gas_state==1 && fire_state==1) state = 4; // 화재

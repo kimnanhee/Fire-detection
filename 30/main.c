@@ -1,6 +1,6 @@
 /*
 A : 4비트 LCD
-PB5, PB6 : 서보모터
+PB5 : 서보모터
 PC0 : 부저
 PC1 : 팬모터
 PC2 : 릴레이
@@ -19,6 +19,10 @@ PF2 : 온도 센서
 #include "uart.h"
 #include "lcd.h"
 #include "servo.h"
+
+char uart_arr[5]; // uart 수신 문자열
+int uart_i = 0, uart_finish = 0;
+int uart_state = 0;
 
 int main(void)
 {
@@ -41,10 +45,24 @@ int main(void)
 	float temp = 0, gas = 0;
 	int temp_state = 0, gas_state = 0, fire_state = 0;
 	char buff[50]; // uart 송신 문자열
-	char arr[50]; // uart 수신 문자열
+	
+	memset(uart_arr, 0, 5); // uart 수신 문자열 초기화
 	
     while (1) 
     {
+		if(uart_finish)
+		{
+			uart_i = 0;
+			uart_finish = 0;
+			
+			if(strcmp(uart_arr, "auto")==0) uart_state = 0; // 자동 모드
+			else if(strcmp(uart_arr, "sudo")==0) uart_state = 1; // 수동 모드
+			else if(strcmp(uart_arr, "fanm")==0) uart_state = 10;
+			else if(strcmp(uart_arr, "serm")==0) uart_state = 11;
+			else if(strcmp(uart_arr, "rela")==0) uart_state = 12;
+			
+			memset(uart_arr, 0, 5); // uart 수신 문자열 초기화
+		}
 		float temp = temp_sensor_read();
 		if(temp > 30.0) temp_state = 1; // 30도 이상일때
 		else temp_state = 0;
@@ -101,5 +119,6 @@ int main(void)
 ISR(USART0_RX_vect) // uart에 들어온 값이 있을 때 실행
 {
 	unsigned char re = UDR0; // UDR0에 레지스터에 데이터가 저장이 된다.
-	arr+=re;
+	uart_arr[uart_i++] = re;
+	if(uart_i == 4) uart_finish = 1;
 }

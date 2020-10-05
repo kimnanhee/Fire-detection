@@ -19,13 +19,13 @@ int SERVO_init(void)
 	TCNT1 = 0x00; // Strating point
 }
 		
-void SERVO_ON()
+void SERVO_ON() // 가스가 통한다
 {
 	OCR1A = 250;
 	_delay_ms(100);
 }
 
-void SERVO_OFF() // 모터를 돌려서 가스를 차단 
+void SERVO_OFF() // 모터를 돌려서 가스를 차단시킨다
 {
 	OCR1A = 500;
 	_delay_ms(100);

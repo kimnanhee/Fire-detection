@@ -406,7 +406,7 @@ int SERVO_init(void)
 
 00000278 <SERVO_ON>:
 		
-void SERVO_ON()
+void SERVO_ON() // 가스가 통한다
 {
 	OCR1A = 250;
  278:	8a ef       	ldi	r24, 0xFA	; 250
@@ -434,7 +434,7 @@ void SERVO_ON()
 	_delay_ms(100);
 }
 
-void SERVO_OFF() // 모터를 돌려서 가스를 차단 
+void SERVO_OFF() // 모터를 돌려서 가스를 차단시킨다
 {
 	OCR1A = 500;
  294:	84 ef       	ldi	r24, 0xF4	; 244
@@ -545,14 +545,14 @@ void uart_check() // 수신 완료일때, 내용 확인하는 함수
  366:	71 f4       	brne	.+28     	; 0x384 <uart_check+0xd4>
  368:	81 e0       	ldi	r24, 0x01	; 1
  36a:	90 e0       	ldi	r25, 0x00	; 0
- 36c:	20 91 00 01 	lds	r18, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
- 370:	30 91 01 01 	lds	r19, 0x0101	; 0x800101 <__DATA_REGION_ORIGIN__+0x1>
+ 36c:	20 91 00 01 	lds	r18, 0x0100	; 0x800100 <__data_start>
+ 370:	30 91 01 01 	lds	r19, 0x0101	; 0x800101 <__data_start+0x1>
  374:	23 2b       	or	r18, r19
  376:	11 f0       	breq	.+4      	; 0x37c <uart_check+0xcc>
  378:	80 e0       	ldi	r24, 0x00	; 0
  37a:	90 e0       	ldi	r25, 0x00	; 0
- 37c:	90 93 01 01 	sts	0x0101, r25	; 0x800101 <__DATA_REGION_ORIGIN__+0x1>
- 380:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 37c:	90 93 01 01 	sts	0x0101, r25	; 0x800101 <__data_start+0x1>
+ 380:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__data_start>
 	}
 	memset(uart_arr, 0, 5); // uart 수신 문자열 초기화
  384:	85 e0       	ldi	r24, 0x05	; 5
@@ -799,9 +799,9 @@ int main(void)
  4e0:	10 92 03 01 	sts	0x0103, r1	; 0x800103 <serm_s+0x1>
 			serm_s = 0; // 서보모터 끄기(가스 차단)
  4e4:	10 92 02 01 	sts	0x0102, r1	; 0x800102 <serm_s>
- 4e8:	10 92 01 01 	sts	0x0101, r1	; 0x800101 <__DATA_REGION_ORIGIN__+0x1>
+ 4e8:	10 92 01 01 	sts	0x0101, r1	; 0x800101 <__data_start+0x1>
 			rela_s = 0; // 릴레이 끄기(전기 차단)
- 4ec:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 4ec:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__data_start>
 			buzz_s = 1; // 부저 동작
  4f0:	90 92 6b 01 	sts	0x016B, r9	; 0x80016b <__data_end+0x1>
  4f4:	80 92 6a 01 	sts	0x016A, r8	; 0x80016a <__data_end>
@@ -857,9 +857,9 @@ int main(void)
  550:	90 92 03 01 	sts	0x0103, r9	; 0x800103 <serm_s+0x1>
 			serm_s = 1; // 서보모터 동작(가스 통함)
  554:	80 92 02 01 	sts	0x0102, r8	; 0x800102 <serm_s>
- 558:	90 92 01 01 	sts	0x0101, r9	; 0x800101 <__DATA_REGION_ORIGIN__+0x1>
+ 558:	90 92 01 01 	sts	0x0101, r9	; 0x800101 <__data_start+0x1>
 			rela_s = 1; // 릴레이 동작(전기 통함)
- 55c:	80 92 00 01 	sts	0x0100, r8	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 55c:	80 92 00 01 	sts	0x0100, r8	; 0x800100 <__data_start>
  560:	10 92 6b 01 	sts	0x016B, r1	; 0x80016b <__data_end+0x1>
 			buzz_s = 0; // 부저 끄기
  564:	10 92 6a 01 	sts	0x016A, r1	; 0x80016a <__data_end>
@@ -873,9 +873,9 @@ int main(void)
  572:	90 92 03 01 	sts	0x0103, r9	; 0x800103 <serm_s+0x1>
 			serm_s = 1; // 서보모터 동작(가스 통함)
  576:	80 92 02 01 	sts	0x0102, r8	; 0x800102 <serm_s>
- 57a:	90 92 01 01 	sts	0x0101, r9	; 0x800101 <__DATA_REGION_ORIGIN__+0x1>
+ 57a:	90 92 01 01 	sts	0x0101, r9	; 0x800101 <__data_start+0x1>
 			rela_s = 1; // 릴레이 동작(전기 통함)
- 57e:	80 92 00 01 	sts	0x0100, r8	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 57e:	80 92 00 01 	sts	0x0100, r8	; 0x800100 <__data_start>
  582:	10 92 6b 01 	sts	0x016B, r1	; 0x80016b <__data_end+0x1>
 			buzz_s = 0; // 부저 끄기
  586:	10 92 6a 01 	sts	0x016A, r1	; 0x80016a <__data_end>
@@ -884,7 +884,7 @@ int main(void)
 		
 		PORTC = 0x00;
  58c:	80 91 6a 01 	lds	r24, 0x016A	; 0x80016a <__data_end>
-		if(buzz_s == 1) PORTC |= 0x01; // PC0 on
+		if(buzz_s == 1) PORTC |= 0x01; // PC0 onS
  590:	90 91 6b 01 	lds	r25, 0x016B	; 0x80016b <__data_end+0x1>
  594:	01 97       	sbiw	r24, 0x01	; 1
  596:	09 f4       	brne	.+2      	; 0x59a <__LOCK_REGION_LENGTH__+0x19a>
@@ -896,10 +896,10 @@ int main(void)
  5a2:	01 97       	sbiw	r24, 0x01	; 1
  5a4:	09 f4       	brne	.+2      	; 0x5a8 <__LOCK_REGION_LENGTH__+0x1a8>
 		else;
-		if(rela_s == 1) PORTC |= 0x04;
+		if(rela_s == 1) PORTC |= 0x04; // PC2 on
  5a6:	a9 9a       	sbi	0x15, 1	; 21
- 5a8:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
- 5ac:	90 91 01 01 	lds	r25, 0x0101	; 0x800101 <__DATA_REGION_ORIGIN__+0x1>
+ 5a8:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__data_start>
+ 5ac:	90 91 01 01 	lds	r25, 0x0101	; 0x800101 <__data_start+0x1>
  5b0:	01 97       	sbiw	r24, 0x01	; 1
  5b2:	09 f4       	brne	.+2      	; 0x5b6 <__LOCK_REGION_LENGTH__+0x1b6>
 		else;

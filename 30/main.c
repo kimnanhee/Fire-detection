@@ -118,15 +118,15 @@ int main(void)
 		}
 		
 		PORTC = 0x00;
-		if(buzz_s == 1) PORTC |= 0x01; // PC0 on
+		if(buzz_s == 1) PORTC |= 0x01; // PC0 onS
 		else;
 		if(fanm_s == 1) PORTC |= 0x02; // PC1 on
 		else;
-		if(rela_s == 1) PORTC |= 0x04;
+		if(rela_s == 1) PORTC |= 0x04; // PC2 on
 		else;
 		if(serm_s == 1) SERVO_ON();
 		else SERVO_OFF();
-		
+		// PORTC = ((buzz_s == 1) << 0) | ((fanm_s ==  1) << 1) | ((rela_s == 1) << 2);
 		_delay_ms(500); // 0.5초마다 측정
     }
 }

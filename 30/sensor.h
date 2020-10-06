@@ -27,22 +27,22 @@ float temp_sensor_read() // 온도값 반환
 	
 	return temp;
 }
+int fire_sensor_read() // 불꽃 상태 반환
+{
+	ADC_set();
+	int value = ADC_read(1);
+	
+	return value;
+}
 
 float gas_sensor_read() // 가스값 반환
 {
 	ADC_set();
 	int value = ADC_read(2);
 	
-	float gas = (float)value *5.0 / 1023.0;
+	float gas = (float)value * 5.0 / 1023.0;
 	
 	return gas; // 0.0 ~ 5.0까지의 값
-}
-
-int fire_sensor_read() // 불꽃 상태 반환
-{
-	char key = PINF & 0x02;
-	if(key == 0x02) return 1;
-	else return 0;
 }
 
 #endif /* SENSOR_H_ */

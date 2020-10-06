@@ -60,7 +60,7 @@ int main(void)
 	LCD_init();
 	SERVO_init();
 	
-	float temp, gas;
+	float temp, fire, gas;
 	int temp_state = 0, gas_state = 0, fire_state = 0;
 	char buff[50]; // uart 송신 문자열
 	
@@ -71,22 +71,24 @@ int main(void)
 		if(uart_finish == 1) uart_check(); // 수신 완료일때, 내용 확인
 		
 		temp = temp_sensor_read();
-		if(temp > 30.0) temp_state = 1; // 30도 이상일때
+		if(temp > 300) temp_state = 1; // 30도 이상일때
 		else temp_state = 0;
 		_delay_ms(100);
 		
 		gas = gas_sensor_read();
-		if(temp > 3.0) gas_state = 1; // 3.0이상일때
+		if(gas > 3.0) gas_state = 1; // 3.0이상일때
 		else gas_state = 0;
 		_delay_ms(100);
 		
-		fire_state = fire_sensor_read();
+		fire = fire_sensor_read();
+		if(fire < 350) fire_state = 1;  // 350 이하일때
+		else fire_state = 0;
 		_delay_ms(100);
 		
-		sprintf(buff, "temp : %3.1f, gas : %.1f, fire : %d     ", temp, gas, fire_state);
+		sprintf(buff, "temp : %d, gas : %d, fire : %d  (%d %d %d)             ", (int)temp, (int)gas, (int)fire, temp_state, gas_state, fire_state);
 		uart_string(buff);
 		
-		sprintf(buff, "%.1fC  %.1f%%  %d", temp, gas*20, fire_state);
+		sprintf(buff, "%d  %d  %d", (int)temp, (int)gas, (int)fire);
 		LCD_command(0x01);
 		_delay_ms(2);
 		LCD_setcursor(0, 0);
@@ -99,7 +101,7 @@ int main(void)
 			rela_s = 0; // 릴레이 끄기(전기 차단)
 			buzz_s = 1; // 부저 동작
 			
-			sprintf(buff, "fire fire fire %d", 0); // 블루투스로 화재 신호 전송
+			sprintf(buff, "fire fire fire          "); // 블루투스로 화재 신호 전송
 			uart_string(buff);
 		}
 		else if(temp_state==1 || gas_state==1) // 팬 모터만 작동
@@ -109,7 +111,7 @@ int main(void)
 			rela_s = 1; // 릴레이 동작(전기 통함)
 			buzz_s = 0; // 부저 끄기
 		}
-		else // 평상시
+		else if (temp_state + fire_state + gas_state == 0) // 평상시
 		{
 			fanm_s = 0; // 팬 끄기
 			serm_s = 1; // 서보모터 동작(가스 통함)
@@ -118,7 +120,7 @@ int main(void)
 		}
 		
 		PORTC = 0x00;
-		if(buzz_s == 1) PORTC |= 0x01; // PC0 onS
+		if(buzz_s == 1) PORTC |= 0x01; // PC0 on
 		else;
 		if(fanm_s == 1) PORTC |= 0x02; // PC1 on
 		else;
@@ -127,7 +129,7 @@ int main(void)
 		if(serm_s == 1) SERVO_ON();
 		else SERVO_OFF();
 		// PORTC = ((buzz_s == 1) << 0) | ((fanm_s ==  1) << 1) | ((rela_s == 1) << 2);
-		_delay_ms(500); // 0.5초마다 측정
+		_delay_ms(1000); // 1초마다 측정
     }
 }
 

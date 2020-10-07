@@ -1,5 +1,39 @@
 ﻿#ifndef SENSOR_H_
 #define SENSOR_H_
+#define F_CPU 16000000UL
+#include <avr/delay.h>
+
+#define DHT11_PIN 0
+uint8_t c=0, I_RH, D_RH, I_Temp, D_Temp, CheckSum;
+void Request()				// ATMega128로 스타트 펄스 전달 & 응답 과정
+{
+	DDRD |= (1<<DHT11_PIN);
+	PORTD &= ~(1<<DHT11_PIN);	// PD6 LOW
+	_delay_ms(20);
+	PORTD |= (1<<DHT11_PIN);	// PD6 HIGH
+}
+void Response()				// 온습도 센서로부터 응답
+{
+	DDRD &= ~(1<<DHT11_PIN); // PD4 LOW
+	while(PIND & (1<<DHT11_PIN));
+	while((PIND & (1<<DHT11_PIN))==0);
+	while(PIND & (1<<DHT11_PIN));
+}
+
+uint8_t Receive_data()
+{
+	for (int q=0; q<8; q++)
+	{
+		while((PIND & (1<<DHT11_PIN)) == 0); //비트가 0인지 1인지 체크
+		_delay_us(30);
+		if(PIND & (1<<DHT11_PIN)) //HIGH가 30ms보다 크면
+		c = (c<<1)|(0x01);	 //HIGH 상태
+		else
+		c = (c<<1); //LOW 상태
+		while(PIND & (1<<DHT11_PIN));
+	}
+	return c;
+}
 
 void ADC_set() // ADC 설정
 {
@@ -15,22 +49,35 @@ uint16_t ADC_read(uint8_t channel) // channel에 해당하는 ADC값 반환
 	ADCSRA |= (1 << ADSC); // ADC 변환 시작
 	while(ADCSRA & (1 << ADSC)); // ADC 변환 완료
 	
-	return ADCW;  // Return converted value
+	return ADCW; // Return converted value
 }
 
 float temp_sensor_read() // 온도값 반환
 {
-	ADC_set();
-	int value = ADC_read(0);
+	Request(); //시작 펄스 신호 보냄
+	Response();	//센서로부터 응답 받음
 	
-	float temp = (float)value * 5.0 / 1023.0 * 100; // ~`C 단위의 온도
+	I_RH=Receive_data(); //습도의 정수 부분
+	D_RH=Receive_data(); //습도의 실수 부분
+	I_Temp=Receive_data(); //온도의 정수 부분
+	D_Temp=Receive_data(); //온도의 실수 부분
+	CheckSum=Receive_data(); //모든 세그먼트의 체크섬
 	
-	return temp;
+	if ((I_RH + D_RH + I_Temp + D_Temp) != CheckSum)
+	{
+		uart_string("ERROR");
+	}
+	else
+	{
+		float temp = I_Temp + (D_Temp / 10.0);
+		return temp;
+	}
+	return 0;
 }
 int fire_sensor_read() // 불꽃 상태 반환
 {
 	ADC_set();
-	int value = ADC_read(1);
+	int value = ADC_read(0);
 	
 	return value;
 }
@@ -38,7 +85,7 @@ int fire_sensor_read() // 불꽃 상태 반환
 float gas_sensor_read() // 가스값 반환
 {
 	ADC_set();
-	int value = ADC_read(2);
+	int value = ADC_read(1);
 	
 	float gas = (float)value * 5.0 / 1023.0;
 	

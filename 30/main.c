@@ -4,9 +4,9 @@ PB5 : 서보모터
 PC0 : 부저
 PC1 : 팬모터
 PC2 : 릴레이
-PF0 : 가스 센서
-PF1 : 불꽃 센서
-PF2 : 온도 센서
+PD0 : 온도 센서(DHT11)
+PF0 : 불꽃 센서
+PF1 : 가스 센서
 */
 #define F_CPU 16000000UL
 #define BAUDRATE(x) ((F_CPU/16/x)-1)
@@ -52,16 +52,16 @@ int main(void)
 	PORTB = 0x00;
 	DDRC = 0xFF; // 부저, 팬모터, 릴레이 출력핀
 	PORTC = 0x04; // 평상시 포트 출력
-	DDRF = 0x00; // 가스, 불꽃, 온도센서 입력핀
+	DDRD = 0x00; // 온도 센서
+	DDRF = 0x00; // 불꽃, 가스센서 입력핀
 	
 	uart_init(BAUDRATE(9600)); // baudrate 속도 설정
 	sei();
 	
-	LCD_init();
+	// LCD_init();
 	SERVO_init();
 	
 	float temp, fire, gas;
-	int temp_state = 0, gas_state = 0, fire_state = 0;
 	char buff[50]; // uart 송신 문자열
 	
 	memset(uart_arr, 0, 5); // uart 수신 문자열 초기화
@@ -71,32 +71,22 @@ int main(void)
 		if(uart_finish == 1) uart_check(); // 수신 완료일때, 내용 확인
 		
 		temp = temp_sensor_read();
-		if(temp > 300) temp_state = 1; // 30도 이상일때
-		else temp_state = 0;
-		_delay_ms(100);
-		
 		gas = gas_sensor_read();
-		if(gas > 3.0) gas_state = 1; // 3.0이상일때
-		else gas_state = 0;
-		_delay_ms(100);
-		
 		fire = fire_sensor_read();
-		if(fire < 350) fire_state = 1;  // 350 이하일때
-		else fire_state = 0;
-		_delay_ms(100);
 		
-		sprintf(buff, "temp : %d, gas : %d, fire : %d  (%d %d %d)             ", (int)temp, (int)gas, (int)fire, temp_state, gas_state, fire_state);
+		sprintf(buff, "temp : %d.%d, gas : %d.%d, fire : %d              ", (int)temp, ((int)(temp*10)%10), (int)gas,((int)(gas*10)%10), (int)fire);
 		uart_string(buff);
 		
 		sprintf(buff, "%d  %d  %d", (int)temp, (int)gas, (int)fire);
-		LCD_command(0x01);
+		// LCD_command(0x01);
 		_delay_ms(2);
-		LCD_setcursor(0, 0);
-		LCD_wString(buff);
+		// LCD_setcursor(0, 0);
+		// LCD_wString(buff);
 		
-		if(fire_state==1) // 화재발생
+		if(fire < 700)  // 화재발생
 		{
-			fanm_s = 0; // 팬 끄기
+			uart_string("func1     ");
+;			fanm_s = 0; // 팬 끄기
 			serm_s = 0; // 서보모터 끄기(가스 차단)
 			rela_s = 0; // 릴레이 끄기(전기 차단)
 			buzz_s = 1; // 부저 동작
@@ -104,15 +94,17 @@ int main(void)
 			sprintf(buff, "fire fire fire          "); // 블루투스로 화재 신호 전송
 			uart_string(buff);
 		}
-		else if(temp_state==1 || gas_state==1) // 팬 모터만 작동
+		else if(temp > 30 || gas > 1.5) // 팬 모터만 작동
 		{
+			uart_string("func2     ");
 			fanm_s = 1; // 팬 동작
 			serm_s = 1; // 서보모터 동작(가스 통함)
 			rela_s = 1; // 릴레이 동작(전기 통함)
 			buzz_s = 0; // 부저 끄기
 		}
-		else if (temp_state + fire_state + gas_state == 0) // 평상시
+		else // 평상시
 		{
+			uart_string("func3     ");
 			fanm_s = 0; // 팬 끄기
 			serm_s = 1; // 서보모터 동작(가스 통함)
 			rela_s = 1; // 릴레이 동작(전기 통함)
@@ -129,7 +121,7 @@ int main(void)
 		if(serm_s == 1) SERVO_ON();
 		else SERVO_OFF();
 		// PORTC = ((buzz_s == 1) << 0) | ((fanm_s ==  1) << 1) | ((rela_s == 1) << 2);
-		_delay_ms(1000); // 1초마다 측정
+		_delay_ms(3000); // 3초마다 측정
     }
 }
 

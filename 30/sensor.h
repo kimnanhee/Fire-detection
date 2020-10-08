@@ -91,5 +91,12 @@ float gas_sensor_read() // 가스값 반환
 	
 	return gas; // 0.0 ~ 5.0까지의 값
 }
+float int_gas_sensor_read() // 가스값 반환
+{
+	ADC_set();
+	int value = ADC_read(1);
+	
+	return value;
+}
 
 #endif /* SENSOR_H_ */

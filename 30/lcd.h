@@ -56,6 +56,7 @@ void LCD_wString(char *str) // 문자열을 출력
 void LCD_setcursor(char col, char row)
 {
 	LCD_command(0x80 | col * 0x40 + row);
+	_delay_us(40);
 }
 
 #endif /* LCD_H_ */

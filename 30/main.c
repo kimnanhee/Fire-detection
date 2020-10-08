@@ -58,7 +58,7 @@ int main(void)
 	uart_init(BAUDRATE(9600)); // baudrate 속도 설정
 	sei();
 	
-	// LCD_init();
+	LCD_init();
 	SERVO_init();
 	
 	float temp, fire, gas;
@@ -77,11 +77,12 @@ int main(void)
 		sprintf(buff, "temp : %d.%d, gas : %d.%d, fire : %d              ", (int)temp, ((int)(temp*10)%10), (int)gas,((int)(gas*10)%10), (int)fire);
 		uart_string(buff);
 		
-		sprintf(buff, "%d  %d  %d", (int)temp, (int)gas, (int)fire);
-		// LCD_command(0x01);
-		_delay_ms(2);
-		// LCD_setcursor(0, 0);
-		// LCD_wString(buff);
+		LCD_setcursor(0, 0);
+		sprintf(buff, "%2d.%d", (int)temp,((int)(temp*10)%10)); // LCD 온도 출력
+		LCD_wString(buff);
+		LCD_data(0b11011111);
+		sprintf(buff, "C %d.%d%% %d", (int)gas, ((int)(gas*10)%10), (int)fire); // LCD 가스, 불꽃 출력
+		LCD_wString(buff);
 		
 		if(fire < 700)  // 화재발생
 		{
@@ -91,8 +92,11 @@ int main(void)
 			rela_s = 0; // 릴레이 끄기(전기 차단)
 			buzz_s = 1; // 부저 동작
 			
-			sprintf(buff, "fire fire fire          "); // 블루투스로 화재 신호 전송
+			sprintf(buff, "fire fire       "); // 블루투스로 화재 신호 전송
 			uart_string(buff);
+			
+			LCD_setcursor(1, 0);
+			LCD_wString(buff);
 		}
 		else if(temp > 30 || gas > 1.5) // 팬 모터만 작동
 		{
@@ -101,6 +105,10 @@ int main(void)
 			serm_s = 1; // 서보모터 동작(가스 통함)
 			rela_s = 1; // 릴레이 동작(전기 통함)
 			buzz_s = 0; // 부저 끄기
+			
+			sprintf(buff, "fan on          ");
+			LCD_setcursor(1, 0);
+			LCD_wString(buff);
 		}
 		else // 평상시
 		{
@@ -109,6 +117,10 @@ int main(void)
 			serm_s = 1; // 서보모터 동작(가스 통함)
 			rela_s = 1; // 릴레이 동작(전기 통함)
 			buzz_s = 0; // 부저 끄기
+			
+			sprintf(buff, "                ");
+			LCD_setcursor(1, 0);
+			LCD_wString(buff);
 		}
 		
 		PORTC = 0x00;

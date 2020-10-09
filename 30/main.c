@@ -73,8 +73,9 @@ int main(void)
 		temp = temp_sensor_read();
 		gas = gas_sensor_read();
 		fire = fire_sensor_read();
+		fire = fire * 999.0 / 1023.0;
 		
-		sprintf(buff, "temp : %d.%d, gas : %d.%d, fire : %d              ", (int)temp, ((int)(temp*10)%10), (int)gas,((int)(gas*10)%10), (int)fire);
+		sprintf(buff, "temp : %2d.%1d, gas : %d.%d, fire : %3d              ", (int)temp, ((int)(temp*10)%10), (int)gas,((int)(gas*10)%10), (int)fire);
 		uart_string(buff);
 		
 		LCD_setcursor(0, 0);

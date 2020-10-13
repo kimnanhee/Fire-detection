@@ -9,7 +9,7 @@
 | OUTPUT | 부저, 팬, 서보모터, 릴레이   |
 | 통신   | 블루투스 모듈                |
 
-
+![img](https://scontent.xx.fbcdn.net/v/t1.15752-0/p280x280/121115681_770602473670900_3092784016045573647_n.jpg?_nc_cat=109&_nc_sid=ae9488&_nc_eui2=AeEDQCGBRQG-OeUqelBREEhM2o6lFBxnM07ajqUUHGczTrLG7CQRIRhIEUxPfkalbT75cYGBt3_v8ONoYFa8g5a9&_nc_ohc=uFjkBubtvtIAX_aF9xt&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&tp=6&oh=152f1fc2985878a09d06228974c265cb&oe=5FAC976D)
 
 ##### 핀 연결
 
@@ -40,3 +40,9 @@ ATmega의 ADC기능을 사용해서 0~1023의 값으로 입력받는다.
 블루투스를 통해서 연결된 앱으로 현재의 상태를 확인할 수 있고, 앱을 통해서 원격으로 팬, 모터, 릴레이를 제어할 수 있다.
 
 uart를 사용해서 통신을 하기 때문에, 중간에 아두이노를 연결해서 컴퓨터에서도 uart로 보낸 값을 확인할 수 있다.
+
+##### PyQt
+
+uart통신을 통해서 받아온 데이터를 사용자가 볼 수 있도록 파싱해서 표시해준다.
+
+직접 데이터를 보고 팬, 모터, 릴레이를 버튼으로 손 쉽게 제어할 수 있다.

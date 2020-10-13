@@ -63,10 +63,7 @@ float temp_sensor_read() // 온도값 반환
 	D_Temp=Receive_data(); //온도의 실수 부분
 	CheckSum=Receive_data(); //모든 세그먼트의 체크섬
 	
-	if ((I_RH + D_RH + I_Temp + D_Temp) != CheckSum)
-	{
-		uart_string("ERROR");
-	}
+	if ((I_RH + D_RH + I_Temp + D_Temp) != CheckSum);
 	else
 	{
 		float temp = I_Temp + (D_Temp / 10.0);

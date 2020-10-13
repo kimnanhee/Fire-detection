@@ -10,7 +10,7 @@ OCR1A값 설정
 #ifndef SERVO_H_
 #define SERVO_H_
 
-int SERVO_init(void)
+void SERVO_init(void)
 {
 	TCCR1A = (1 << COM1A1) | (1 << WGM11); // PWM 설정
 	TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11) | (1 << CS10); // 분주비 설정

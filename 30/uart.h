@@ -5,7 +5,7 @@ void uart_init(unsigned int baud) // baudrate 속도 설정
 {
 	UBRR0H = (unsigned char)(baud >> 8);
 	UBRR0L = (unsigned char)baud;
-	UCSR0B = (1 << TXEN0) | (1 << RXEN0);
+	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0); // 7 bit : 인터럽트 활성화
 }
 
 void uart_write(unsigned char data) // uart로 데이터 전송

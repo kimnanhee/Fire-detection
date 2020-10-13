@@ -16,6 +16,7 @@ PF1 : 가스 센서
 #include <avr/interrupt.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "sensor.h"
 #include "uart.h"
@@ -23,6 +24,7 @@ PF1 : 가스 센서
 #include "servo.h"
 
 char uart_arr[5]; // uart 수신 문자열
+int uart_state = 0;
 int uart_i = 0, uart_finish = 0; // uart 수신 완료 확인 변수
 int mode = 0; // 자동, 수동
 int fanm_s = 0, serm_s = 1, rela_s = 1, buzz_s = 0; // 팬모터, 서보모터, 릴레이, 부저 on/off 상태
@@ -62,66 +64,67 @@ int main(void)
 	SERVO_init();
 	
 	float temp, fire, gas;
-	char buff[50]; // uart 송신 문자열
+	char buff[100]; // uart 송신 문자열
 	
 	memset(uart_arr, 0, 5); // uart 수신 문자열 초기화
 	
     while (1) 
     {
-		if(uart_finish == 1) uart_check(); // 수신 완료일때, 내용 확인
+		if(uart_finish) 
+			uart_check(); // 수신 완료일때, 내용 확인
 		
 		temp = temp_sensor_read();
 		gas = gas_sensor_read();
 		fire = fire_sensor_read();
 		fire = fire * 999.0 / 1023.0;
 		
-		sprintf(buff, "temp : %2d.%1d, gas : %d.%d, fire : %3d              ", (int)temp, ((int)(temp*10)%10), (int)gas,((int)(gas*10)%10), (int)fire);
+		sprintf(buff, "temp : %2d.%1d, gas : %d.%d, fire : %3d ", (int)temp, ((int)(temp*10)%10), (int)gas,((int)(gas*10)%10), (int)fire);
 		uart_string(buff);
 		
 		LCD_setcursor(0, 0);
 		sprintf(buff, "%2d.%d", (int)temp,((int)(temp*10)%10)); // LCD 온도 출력
 		LCD_wString(buff);
 		LCD_data(0b11011111);
-		sprintf(buff, "C %d.%d%% %d", (int)gas, ((int)(gas*10)%10), (int)fire); // LCD 가스, 불꽃 출력
+		sprintf(buff, "C %d.%d%% %3d ", (int)gas, ((int)(gas*10)%10), (int)fire); // LCD 가스, 불꽃 출력
 		LCD_wString(buff);
 		
-		if(fire < 700)  // 화재발생
+		if(mode == 0) // 자동모드일때만 상태 변경
 		{
-			uart_string("func1     ");
-;			fanm_s = 0; // 팬 끄기
-			serm_s = 0; // 서보모터 끄기(가스 차단)
-			rela_s = 0; // 릴레이 끄기(전기 차단)
-			buzz_s = 1; // 부저 동작
-			
-			sprintf(buff, "fire fire       "); // 블루투스로 화재 신호 전송
-			uart_string(buff);
-			
-			LCD_setcursor(1, 0);
-			LCD_wString(buff);
-		}
-		else if(temp > 30 || gas > 1.5) // 팬 모터만 작동
-		{
-			uart_string("func2     ");
-			fanm_s = 1; // 팬 동작
-			serm_s = 1; // 서보모터 동작(가스 통함)
-			rela_s = 1; // 릴레이 동작(전기 통함)
-			buzz_s = 0; // 부저 끄기
-			
-			sprintf(buff, "fan on          ");
-			LCD_setcursor(1, 0);
-			LCD_wString(buff);
-		}
-		else // 평상시
-		{
-			uart_string("func3     ");
-			fanm_s = 0; // 팬 끄기
-			serm_s = 1; // 서보모터 동작(가스 통함)
-			rela_s = 1; // 릴레이 동작(전기 통함)
-			buzz_s = 0; // 부저 끄기
-			
-			sprintf(buff, "                ");
-			LCD_setcursor(1, 0);
-			LCD_wString(buff);
+			if(fire < 700)  // 화재발생
+			{
+				fanm_s = 0; // 팬 끄기
+				serm_s = 0; // 서보모터 끄기(가스 차단)
+				rela_s = 0; // 릴레이 끄기(전기 차단)
+				buzz_s = 1; // 부저 동작
+				
+				sprintf(buff, "fire fire"); // 블루투스로 화재 신호 전송
+				uart_string(buff);
+				
+				LCD_setcursor(1, 0);
+				LCD_wString(buff);
+			}
+			else if(temp > 30 || gas > 1.5) // 팬 모터만 작동
+			{
+				fanm_s = 1; // 팬 동작
+				serm_s = 1; // 서보모터 동작(가스 통함)
+				rela_s = 1; // 릴레이 동작(전기 통함)
+				buzz_s = 0; // 부저 끄기
+				
+				sprintf(buff, "fan on          ");
+				LCD_setcursor(1, 0);
+				LCD_wString(buff);
+			}
+			else // 평상시
+			{
+				fanm_s = 0; // 팬 끄기
+				serm_s = 1; // 서보모터 동작(가스 통함)
+				rela_s = 1; // 릴레이 동작(전기 통함)
+				buzz_s = 0; // 부저 끄기
+				
+				sprintf(buff, "                ");
+				LCD_setcursor(1, 0);
+				LCD_wString(buff);
+			}
 		}
 		
 		PORTC = 0x00;
@@ -141,6 +144,9 @@ int main(void)
 ISR(USART0_RX_vect) // uart에 들어온 값이 있을 때 실행
 {
 	unsigned char re = UDR0; // UDR0에 레지스터에 데이터가 저장이 된다.
-	uart_arr[uart_i++] = re;
-	if(uart_i == 4) uart_finish = 1;
+	
+	if(re == '\x02') uart_state = 1; // 시작 문자열
+	else if(re == '\x03') uart_state = 0, uart_finish = 1; // 종료 문자열
+	
+	else if(uart_state) uart_arr[uart_i++] = re;
 }

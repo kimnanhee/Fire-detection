@@ -9,8 +9,6 @@
 | OUTPUT | 부저, 팬, 서보모터, 릴레이   |
 | 통신   | 블루투스 모듈                |
 
-![img](https://scontent.xx.fbcdn.net/v/t1.15752-0/p280x280/121115681_770602473670900_3092784016045573647_n.jpg?_nc_cat=109&_nc_sid=ae9488&_nc_eui2=AeEDQCGBRQG-OeUqelBREEhM2o6lFBxnM07ajqUUHGczTrLG7CQRIRhIEUxPfkalbT75cYGBt3_v8ONoYFa8g5a9&_nc_ohc=uFjkBubtvtIAX_aF9xt&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&tp=6&oh=152f1fc2985878a09d06228974c265cb&oe=5FAC976D)
-
 ##### 핀 연결
 
 PA0~PA2 : LCD 제어핀
@@ -22,6 +20,10 @@ PC2 : 릴레이
 PD0 : 온도 센서(DHT11)
 PF0 : 불꽃 센서
 PF1 : 가스 센서
+
+##### 테스트 사진
+
+![img](https://scontent.xx.fbcdn.net/v/t1.15752-0/p280x280/121115681_770602473670900_3092784016045573647_n.jpg?_nc_cat=109&_nc_sid=ae9488&_nc_eui2=AeEDQCGBRQG-OeUqelBREEhM2o6lFBxnM07ajqUUHGczTrLG7CQRIRhIEUxPfkalbT75cYGBt3_v8ONoYFa8g5a9&_nc_ohc=uFjkBubtvtIAX_aF9xt&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&tp=6&oh=152f1fc2985878a09d06228974c265cb&oe=5FAC976D)
 
 
 

@@ -21,9 +21,11 @@ PD0 : 온도 센서(DHT11)
 PF0 : 불꽃 센서
 PF1 : 가스 센서
 
+
+
 ##### 테스트 사진
 
-![fire](C:\Users\DSM\Desktop\fire.jpg)
+![fire](fire.jpg)
 
 
 
